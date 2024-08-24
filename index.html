@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog SR12 Agen Ugi</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo"><img src="images/logo.png" alt="Logo"></div>
+            <div class="search-bar">
+                <input type="text" id="search" placeholder="Cari item...">
+            </div>
+            <div class="basket">
+                <button id="basket-btn"><i class="fas fa-shopping-cart"></i> (0)</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="view-options">
+            <button id="toggle-view-btn"><i class="fas fa-list"></i> List View</button>
+            <select id="sort-options">
+                <option value="default">Urutan: Default</option>
+                <option value="name-asc">Nama (A-Z)</option>
+                <option value="name-desc">Nama (Z-A)</option>
+                <option value="price-asc">harga (rendah ke tinggi)</option>
+                <option value="price-desc">harga (tinggi ke rendah)</option>
+            </select>
+        </div>
+
+        <div id="items-container" class="grid-view">
+            <!-- Items will be dynamically inserted here -->
+        </div>
+    </main>
+
+    <aside id="checkout-side">
+        <button id="hide-checkout-btn"><i class="fas fa-chevron-right"></i></button>
+        <h2>Checkout</h2>
+        <div id="checkout-content">
+            <!-- Checkout details will be dynamically inserted here -->
+        </div>
+        <form id="checkout-form">
+            <input type="text" name="customer-name" id="customer-name" placeholder="Customer Name" required >
+            <input type="tel" name="customer-phone" id="customer-phone" placeholder="Phone Number" required >
+            <button id="checkout-btn" type="submit" disabled><i class="fas fa-check"></i> Checkout</button>
+        </form>
+    </aside>
+
+    <div id="overlay"></div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
