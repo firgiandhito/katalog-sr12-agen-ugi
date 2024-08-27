@@ -82,6 +82,14 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error fetching data:', error));
     }
 
+    function formatPrice(number) {
+        const numberStr = number.toString();
+    
+        const formattedNumber = numberStr.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+    
+        return formattedNumber + ",00";
+    }
+
     function renderItems(filteredItems = items) {
         itemsContainer.innerHTML = filteredItems.map(item => `
             <div class="item-card">
@@ -89,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="item-info">
                     <h3>${item.name}</h3>
                     <p>Net: ${item.net}</p>
-                    <p>Rp.${item.price}</p>
+                    <p>Rp.${formatPrice(item.price)}</p>
                     <button onclick="addToCart('${item.name}', ${item.price})">Add Item</button>
                 </div>
                 <div class="item-details">
@@ -161,11 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return `
                 <div class="checkout-item">
                     <span>${name} x${quantity}</span>
-                    <span>Rp.${price.toFixed(2)}/pcs<br></span>
-                    <span>Rp.${(price * quantity).toFixed(2)}<br></span>
+                    <span>Rp.${formatPrice(price)}/pcs<br></span>
+                    <span>Rp.${formatPrice(price * quantity)}<br></span>
                 </div>
             `;
-        }).join('') + `<hr><div class="checkout-total">Total: Rp. ${totalPrice.toFixed(2)}</div>`;
+        }).join('') + `<hr><div class="checkout-total">Total: Rp. ${formatPrice(totalPrice)}</div>`;
 
         checkoutBtn.disabled = !customerNameInput.value || !customerPhoneInput.value || !totalPrice;
     }
@@ -203,32 +211,53 @@ document.addEventListener('DOMContentLoaded', () => {
         return orderedItems;
     }
 
-    async function sendMessage() {
-        const orderedItems = getOrderSummary();
-        console.log(orderedItems);
-        const messageText = "<i>Assalamu'alaikum...</i>%0A"
-            + "<b>Pesanan%20baru</b>%0A"
-            + "Nama%20pelanggan:%20" + customerName + "%0A"
-            + "Nomor%20telepon%20pelanggan:%20" + customerPhone + "%0A%0A"
-            + "<u>Barang%20pesanan</u>" + "%0A"
-            + orderedItems + "%0A"
-            + "<i>Syukran...</i>";
-        console.log(messageText);
+    // async function sendMessage() {
+    //     const orderedItems = getOrderSummary();
+    //     console.log(orderedItems);
+    //     const messageText = "<i>Assalamu'alaikum...</i>%0A"
+    //         + "<b>Pesanan%20baru</b>%0A"
+    //         + "Nama%20pelanggan:%20" + customerName + "%0A"
+    //         + "Nomor%20telepon%20pelanggan:%20" + customerPhone + "%0A%0A"
+    //         + "<u>Barang%20pesanan</u>" + "%0A"
+    //         + orderedItems + "%0A"
+    //         + "<i>Syukran...</i>";
+    //     console.log(messageText);
 
-        const botToken = '7130683967:AAFOfjuhNH_1VNb3U-VOj5FH5BC8AEn8XCo';
-        const chatId = '-1002241455688';
-        let url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${messageText}&parse_mode=HTML`;
+    //     const botToken = '7130683967:AAFOfjuhNH_1VNb3U-VOj5FH5BC8AEn8XCo';
+    //     const chatId = '-1002241455688';
+    //     let url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${messageText}&parse_mode=HTML`;
 
-        let api = new XMLHttpRequest();
+    //     let api = new XMLHttpRequest();
 
-        api.open("GET", url, true);
-        api.send();
-    }
+    //     api.open("GET", url, true);
+    //     api.send();
+    // }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (customerNameInput.value && customerPhoneInput.value) {
-            sendMessage();
+            const orderedItems = getOrderSummary();
+            const data = {
+                customerName: customerNameInput.value,
+                customerPhone: customerPhoneInput.value,
+                orderedItems: orderedItems
+            };
+
+            try {
+                const response = await fetch('https://server-katalog-sr12-49cf77b978e6.herokuapp.com/send-message', {
+                    method: 'POST',
+                    headers: {
+                        'User-Agent': 'localtunnel',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+    
+                const result = await response.text();
+                console.log(result);
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
     });
 
