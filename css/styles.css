@@ -83,7 +83,8 @@ main {
 }
 
 #items-container.list-view {
-    display: block;
+    display: flex;
+    flex-direction: column;
 }
 
 #items-container.list-view .item-card {
@@ -266,7 +267,7 @@ pre {
     z-index: 1000;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 481px) and (max-width: 768px) {
     .search-bar input {
         width: 150px;
     }

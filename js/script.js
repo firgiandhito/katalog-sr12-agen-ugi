@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="item-details">
                     <!-- Scrollable content goes here -->
-                    <p><pre>${item.details}</pre></p>
+                    <pre>${item.details}</pre>
                 </div>
             </div>
         `).join('');
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 title.style.lineHeight = '0.99';
             } else if (isSmallScreen) {
                 // Apply single-line overflow style for titles with less than 2 words
-                title.style.maxWidth = '10ch';
+                title.style.maxWidth = '11ch';
                 title.style.overflow = 'hidden';
                 title.style.textOverflow = 'ellipsis';
                 title.style.whiteSpace = 'nowrap';
