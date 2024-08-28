@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         //Item names styling
         itemTitles.forEach(title => {
             const wordCount = title.textContent.trim().split(/\s+/).length;
-            const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+            const isSmallScreen = window.matchMedia("(max-width: 480px)").matches;
 
             if (wordCount >= 2 && isSmallScreen) {
                 // Apply multi-line clamp style for titles with 2 or more words
