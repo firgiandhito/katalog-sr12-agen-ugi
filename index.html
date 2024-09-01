@@ -38,21 +38,29 @@
         </div>
     </main>
 
+    <div class="loader" ></div>
+
     <aside id="checkout-side">
         <button id="hide-checkout-btn"><i class="fas fa-chevron-right"></i></button>
         <h2>Checkout</h2>
         <div id="checkout-content">
             <!-- Checkout details will be dynamically inserted here -->
         </div>
-        <form id="checkout-form">
-            <input type="text" name="customer-name" id="customer-name" placeholder="Customer Name" required >
-            <input type="tel" name="customer-phone" id="customer-phone" placeholder="Phone Number" required >
-            <button id="checkout-btn" type="submit" disabled><i class="fas fa-check"></i> Checkout</button>
+        <form id="checkout-form" name="checkout-form">
+            <input type="text" name="namaCustomer" id="customer-name" placeholder="Customer Name" required >
+            <input type="tel" name="noTelp" id="customer-phone" placeholder="Phone Number" required >
+            <input type="text" name="alamat" id="customer-address" placeholder="address (optional)" >
+            <button id="checkout-btn" class="button" type="submit" disabled>
+                Checkout
+            </button>
         </form>
     </aside>
 
     <div id="overlay"></div>
 
+    <div id="loader-overlay"></div>
+
+    <div id="main-card"></div>
     <script src="js/script.js"></script>
 
 </body>

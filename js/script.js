@@ -16,10 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutBtn = document.getElementById('checkout-btn');
     const customerNameInput = document.getElementById('customer-name');
     const customerPhoneInput = document.getElementById('customer-phone');
+    const customerAddressInput = document.getElementById('customer-address');
     const hideCheckoutBtn = document.getElementById('hide-checkout-btn');
-    const form = document.getElementById('checkout-form');
-    const customerName = document.getElementById('customer-name').value;
-    const customerPhone = document.getElementById('customer-phone').value;
+    const form = document.forms['checkout-form'];
+    const loader = document.querySelector('.loader');
+    const mainCard = document.querySelector('#main-card');
 
     function fetchItems() {
         //First sheet
@@ -40,10 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (let i = 0; i < rawData.table.rows.length; i++) {
                     let row = rawData.table.rows[i].c;
                     let simplifiedRow = {
-                        name: row[1].v,        // Product name
-                        price: row[2].v,       // Product price
-                        imageUrl: row[3].v,       // Product image URL
-                        net: row[4].v      // Product net
+                        name: row[1].v,
+                        price: row[2].v,
+                        imageUrl: row[3].v,
+                        net: row[4].v
                     };
                     data.push(simplifiedRow);
                 }
@@ -78,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 console.log(data);
                 renderItems();
+                showMainCard();
             })
             .catch(error => console.error('Error fetching data:', error));
     }
@@ -90,27 +92,41 @@ document.addEventListener('DOMContentLoaded', () => {
         return formattedNumber + ",00";
     }
 
-    function formatText(text) {
-        return text.replace(/\n/g, '<br>');
+    function convertToSlug(inputString) {
+        return inputString.replace(/\s+/g, '-').toLowerCase();
     }
 
     function renderItems(filteredItems = items) {
         itemsContainer.innerHTML = filteredItems.map(item => `
-            <div class="item-card">
-                <img src="${item.imageUrl}" alt="${item.name}">
+            <div class="item-card" id="${convertToSlug(item.name)}">
+                <img src="${item.imageUrl}" alt="${item.name}" loading="lazy">
                 <div class="item-info">
                     <h3>${item.name}</h3>
                     <p>Net: ${item.net}</p>
                     <p>Rp.${formatPrice(item.price)}</p>
-                    <button onclick="addToCart('${item.name}', ${item.price})">Add Item</button>
+                    <button class="add-to-cart-btn" onclick="addToCart('${item.name}', ${item.price})">Add Item</button>
                 </div>
                 <div class="item-details">
-                    <!-- Scrollable content goes here -->
                     <pre>${item.details}</pre>
                 </div>
             </div>
         `).join('');
         applyTitleStyles();
+    }
+
+    function showMainCard() {
+        document.querySelectorAll('.item-card').forEach((item) => {
+            item.addEventListener('click', (e) => {
+                if (event.target.closest('button.add-to-cart-btn')) {
+                    return;
+                }
+
+                const itemContent = item.innerHTML;
+                mainCard.innerHTML = itemContent;
+                mainCard.classList.add('show');
+                overlay.style.display = 'block';
+            });
+        });
     }
 
     function applyTitleStyles() {
@@ -119,7 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
         //Item names styling
         itemTitles.forEach(title => {
             const wordCount = title.textContent.trim().split(/\s+/).length;
-            const isSmallScreen = window.matchMedia("(max-width: 480px)").matches;
+            const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+            const isGrid = itemsContainer.classList.contains('grid-view');
 
             if (wordCount >= 2 && isSmallScreen) {
                 // Apply multi-line clamp style for titles with 2 or more words
@@ -128,8 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 title.style.webkitLineClamp = '2';
                 title.style.overflow = 'hidden';
                 title.style.textOverflow = 'ellipsis';
-                title.style.lineHeight = '0.99';
-            } else if (isSmallScreen) {
+                title.style.lineHeight = '0.995';
+            } else if (isSmallScreen && isGrid) {
                 // Apply single-line overflow style for titles with less than 2 words
                 title.style.maxWidth = '11ch';
                 title.style.overflow = 'hidden';
@@ -187,14 +204,16 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.style.display = checkoutSide.classList.contains('show') ? 'block' : 'none';
     }
 
-    function hideCheckoutSide() {
+    function hideWindow() {
         checkoutSide.classList.remove('show');
+        mainCard.classList.remove('show');
+        mainCard.innerHTML = '';
         overlay.style.display = 'none';
     }
 
     basketBtn.addEventListener('click', toggleCheckoutSide);
-    hideCheckoutBtn.addEventListener('click', hideCheckoutSide);
-    overlay.addEventListener('click', hideCheckoutSide);
+    hideCheckoutBtn.addEventListener('click', hideWindow);
+    overlay.addEventListener('click', hideWindow);
 
     function getOrderSummary() {
         const checkoutItems = document.querySelectorAll('.checkout-item');
@@ -217,26 +236,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        loader.style.display = "block";
+        document.querySelector("#loader-overlay").style.display = "block";
+        console.log(new FormData(form));
         if (customerNameInput.value && customerPhoneInput.value) {
             const orderedItems = getOrderSummary();
+            console.log(orderedItems);
             const data = {
                 customerName: customerNameInput.value,
                 customerPhone: customerPhoneInput.value,
+                address: customerAddressInput.value,
                 orderedItems: orderedItems
             };
 
             try {
-                const response = await fetch('https://server-katalog-sr12-49cf77b978e6.herokuapp.com/send-message', {
+                // https://server-katalog-sr12-49cf77b978e6.herokuapp.com/send-message
+                const response1 = await fetch('http://localhost:3000/send-message', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(data)
                 });
-    
-                const result = await response.text();
-                console.log(result);
-                if (response.ok) {
+
+                const response2 = await fetch('https://script.google.com/macros/s/AKfycbwtqu-AExl9M9C25tcmu-RagBcpj2s_RjaJOYHAViN0KulipYcO1QxcfYVOzXfYmCicGg/exec', {
+                    method: 'POST',
+                    body: new FormData(form)
+                });
+
+                const result1 = await response1.text();
+                const result2 = await response2.text();
+                console.log(result1, result2);
+                console.log(result2);
+
+                if (response1.ok && response2.ok) {
                     alert("Pesanan terkirim!\nTerimakasih....");
                     location.reload();
                 }
@@ -303,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial render
     renderItems();
     fetchItems();
+    setTimeout(showMainCard, 100);
 
     //Detect if window size changes
     window.addEventListener('resize' ,() => {
