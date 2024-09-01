@@ -250,8 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                // https://server-katalog-sr12-49cf77b978e6.herokuapp.com/send-message
-                const response1 = await fetch('http://localhost:3000/send-message', {
+                // http://localhost:3000/send-message
+                const response1 = await fetch('https://server-katalog-sr12-49cf77b978e6.herokuapp.com/send-message', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
