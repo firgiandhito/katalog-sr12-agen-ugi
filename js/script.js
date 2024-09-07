@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     let cart = [];
     let data = [];
+    let customerData = [];
 
     const toggleViewBtn = document.getElementById('toggle-view-btn');
     const itemsContainer = document.getElementById('items-container');
@@ -21,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.forms['checkout-form'];
     const loader = document.querySelector('.loader');
     const mainCard = document.querySelector('#main-card');
+    const hideMainCardBtn = document.getElementById('hide-main-card');
+    const suggestions = document.getElementById('suggestions');
 
     function fetchItems() {
         //First sheet
@@ -55,12 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error fetching data:', error));
 
         //Second sheet
-        let SHEET_ID2 = '1mEZqLXC29_-hTXZbjTAsHwlYS6PXAOw3XYMCOmTDRYU';
         let SHEET_TITLE2 = 'details';
         let SHEET_RANGE2 = 'A2:B';
 
         let FULL_URL2 = 'https://docs.google.com/spreadsheets/d/' 
-            + SHEET_ID2 + '/gviz/tq?sheet=' 
+            + SHEET_ID + '/gviz/tq?sheet=' 
             + SHEET_TITLE2 + '&range=' 
             + SHEET_RANGE2;
 
@@ -77,9 +79,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     row = { ...rest, details };
                 }
 
-                console.log(data);
+                // console.log(data);
                 renderItems();
                 showMainCard();
+            })
+            .catch(() => window.location.reload());
+
+        //third sheet
+        let SHEET_TITLE3 = 'customer%20data';
+        let SHEET_RANGE3 = 'B2:D';
+
+        let FULL_URL3 = 'https://docs.google.com/spreadsheets/d/' 
+            + SHEET_ID + '/gviz/tq?sheet=' 
+            + SHEET_TITLE3 + '&range=' 
+            + SHEET_RANGE3;
+
+        fetch(FULL_URL3) // Point to google sheets data
+            .then(res => res.text())
+            .then(rep => {
+                const rawData3 = JSON.parse(rep.substr(47).slice(0, -2));
+
+                for (let i = 0; i < rawData3.table.rows.length; i++) {
+                    row = rawData3.table.rows[i].c;
+                    let simplifiedRow = {
+                        name: row[0].v,
+                        phone: row[1].v,
+                        address: row[2].v
+                    };
+                    customerData.push(simplifiedRow);
+                }
+
+                // console.log(customerData);
             })
             .catch(error => console.error('Error fetching data:', error));
     }
@@ -117,14 +147,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function showMainCard() {
         document.querySelectorAll('.item-card').forEach((item) => {
             item.addEventListener('click', (e) => {
-                if (event.target.closest('button.add-to-cart-btn')) {
+                if (e.target.closest('button.add-to-cart-btn')) {
                     return;
                 }
 
                 const itemContent = item.innerHTML;
                 mainCard.innerHTML = itemContent;
                 mainCard.classList.add('show');
-                overlay.style.display = 'block';
+                overlay.classList.add('show');
+                setTimeout(() => {
+                    hideMainCardBtn.classList.add('show')
+                }, 100);;
             });
         });
     }
@@ -135,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         //Item names styling
         itemTitles.forEach(title => {
             const wordCount = title.textContent.trim().split(/\s+/).length;
-            const isSmallScreen = window.matchMedia("(max-width: 768px)").matches;
+            const isSmallScreen = window.matchMedia("(max-width: 480px)").matches;
             const isGrid = itemsContainer.classList.contains('grid-view');
 
             if (wordCount >= 2 && isSmallScreen) {
@@ -199,21 +232,66 @@ document.addEventListener('DOMContentLoaded', () => {
         checkoutBtn.disabled = !customerNameInput.value || !customerPhoneInput.value || !totalPrice;
     }
 
-    function toggleCheckoutSide() {
-        checkoutSide.classList.toggle('show');
-        overlay.style.display = checkoutSide.classList.contains('show') ? 'block' : 'none';
+    // Auto-fill feature
+    function showSuggestions(value) {
+        suggestions.innerHTML = '';
+        const filteredData = customerData.filter(customer => 
+        customer.name.toLowerCase().includes(value.toLowerCase())
+        );
+
+        filteredData.forEach(customer => {
+        const suggestionItem = document.createElement('div');
+        suggestionItem.classList.add('dropdown-item');
+        suggestionItem.textContent = customer.name;
+        suggestionItem.addEventListener('click', () => {
+            autofillForm(customer);
+            updateCheckoutContent();
+        });
+        suggestions.appendChild(suggestionItem);
+        });
+    }
+
+    function autofillForm(customer) {
+        customerNameInput.value = customer.name;
+        customerPhoneInput.value = customer.phone;
+        customerAddressInput.value = customer.address;
+        suggestions.innerHTML = '';
+    }
+
+    customerNameInput.addEventListener('input', (event) => {
+        const value = event.target.value;
+        if (value.length > 0) {
+        showSuggestions(value);
+        } else {
+        suggestions.innerHTML = '';
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!customerNameInput.contains(event.target) && !suggestions.contains(event.target)) {
+        suggestions.innerHTML = '';
+        }
+    });
+
+    function showCheckoutSide() {
+        checkoutSide.classList.add('show');
+        overlay.classList.add('show');
     }
 
     function hideWindow() {
         checkoutSide.classList.remove('show');
-        mainCard.classList.remove('show');
+        setTimeout(() => {
+            mainCard.classList.remove('show');
+        }, 100);
         mainCard.innerHTML = '';
-        overlay.style.display = 'none';
+        overlay.classList.remove('show');
+        hideMainCardBtn.classList.remove('show');
     }
 
-    basketBtn.addEventListener('click', toggleCheckoutSide);
+    basketBtn.addEventListener('click', showCheckoutSide);
     hideCheckoutBtn.addEventListener('click', hideWindow);
     overlay.addEventListener('click', hideWindow);
+    hideMainCardBtn.addEventListener('click', () => setTimeout(hideWindow, 400));
 
     function getOrderSummary() {
         const checkoutItems = document.querySelectorAll('.checkout-item');
@@ -238,10 +316,10 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         loader.style.display = "block";
         document.querySelector("#loader-overlay").style.display = "block";
-        console.log(new FormData(form));
+        // console.log(new FormData(form));
         if (customerNameInput.value && customerPhoneInput.value) {
             const orderedItems = getOrderSummary();
-            console.log(orderedItems);
+            // console.log(orderedItems);
             const data = {
                 customerName: customerNameInput.value,
                 customerPhone: customerPhoneInput.value,
@@ -251,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // http://localhost:3000/send-message
+                // https://server-katalog-sr12-49cf77b978e6.herokuapp.com/send-message
                 const response1 = await fetch('https://server-katalog-sr12-49cf77b978e6.herokuapp.com/send-message', {
                     method: 'POST',
                     headers: {
@@ -269,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log(result1, result2);
                 console.log(result2);
 
-                if (response1.ok && response2.ok) {
+                if (response1.ok) {
                     alert("Pesanan terkirim!\nTerimakasih....");
                     location.reload();
                 }
@@ -318,6 +397,8 @@ document.addEventListener('DOMContentLoaded', () => {
             details.forEach(detail => {
                 detail.style.display = 'none';
             });
+            
+            applyTitleStyles();
         } else {
             itemsContainer.classList.remove('grid-view');
             itemsContainer.classList.add('list-view');
@@ -336,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial render
     renderItems();
     fetchItems();
-    setTimeout(showMainCard, 100);
+    showMainCard();
 
     //Detect if window size changes
     window.addEventListener('resize' ,() => {

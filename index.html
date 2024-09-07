@@ -47,7 +47,8 @@
             <!-- Checkout details will be dynamically inserted here -->
         </div>
         <form id="checkout-form" name="checkout-form">
-            <input type="text" name="namaCustomer" id="customer-name" placeholder="Customer Name" required >
+            <input type="text" name="namaCustomer" id="customer-name" placeholder="Customer Name" autocomplete="off" required >
+            <div id="suggestions" class="dropdown"></div>
             <input type="tel" name="noTelp" id="customer-phone" placeholder="Phone Number" required >
             <input type="text" name="alamat" id="customer-address" placeholder="address (optional)" >
             <button id="checkout-btn" class="button" type="submit" disabled>
@@ -61,6 +62,7 @@
     <div id="loader-overlay"></div>
 
     <div id="main-card"></div>
+    <div id="hide-main-card"><i class="fa-duotone fa-solid fa-x"></i></div>
     <script src="js/script.js"></script>
 
 </body>
