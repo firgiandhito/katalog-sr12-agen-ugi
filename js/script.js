@@ -370,15 +370,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(data)
                 });
 
-                const response2 = await fetch('https://script.google.com/macros/s/AKfycbwtqu-AExl9M9C25tcmu-RagBcpj2s_RjaJOYHAViN0KulipYcO1QxcfYVOzXfYmCicGg/exec', {
-                    method: 'POST',
-                    body: new FormData(form)
-                });
-
                 const result1 = await response1.text();
-                const result2 = await response2.text();
-                console.log(result1, result2);
-                // console.log(result2);
+                
+                if (nameMatch && phoneMatch) {
+                    const response2 = await fetch('https://script.google.com/macros/s/AKfycbwtqu-AExl9M9C25tcmu-RagBcpj2s_RjaJOYHAViN0KulipYcO1QxcfYVOzXfYmCicGg/exec', {
+                        method: 'POST',
+                        body: new FormData(form)
+                    });
+
+                    console.log(result1);
+
+                    const result2 = await response2.text();
+                    console.log(result2);
+                }
 
                 if (response1.ok) {
                     alert("Pesanan terkirim!\nTerimakasih....");
