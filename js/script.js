@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const result1 = await response1.text();
                 
-                if (nameMatch && phoneMatch) {
+                if (!nameMatch && !phoneMatch) {
                     const response2 = await fetch('https://script.google.com/macros/s/AKfycbwtqu-AExl9M9C25tcmu-RagBcpj2s_RjaJOYHAViN0KulipYcO1QxcfYVOzXfYmCicGg/exec', {
                         method: 'POST',
                         body: new FormData(form)
