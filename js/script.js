@@ -318,6 +318,38 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector("#loader-overlay").style.display = "block";
         // console.log(new FormData(form));
         if (customerNameInput.value && customerPhoneInput.value) {
+            let nameMatch = false;
+            let phoneMatch = false;
+            let storedDataName = '';
+
+            // Check through customerData for matches
+            for (let i = 0; i < customerData.length; i++) {
+                if (customerData[i].name.toLowerCase() === customerNameInput.value.toLowerCase()) {
+                    nameMatch = true;
+                }
+                if (customerData[i].phone === customerPhoneInput.value) {
+                    phoneMatch = true;
+                    storedDataName = customerData[i].name;
+                }
+
+                if (nameMatch && phoneMatch) {
+                    break;
+                }
+            }
+
+            if (!nameMatch && phoneMatch) {
+                alert(`Data anda tersimpan dengan nama '${storedDataName}', masukkan nama yang sesuai dengan pesanan sebelumnya.`);
+                loader.style.display = "none";
+                document.querySelector("#loader-overlay").style.display = "none";
+                return;
+    
+            } else if (nameMatch && !phoneMatch) {
+                alert("Nama pelanggan yang anda masukkan telah dipakai, silahkan masukkan nama yang lain. (bisa menggunakan nama panggilan seperti 'Ummu fulan' Dsb.)");
+                loader.style.display = "none";
+                document.querySelector("#loader-overlay").style.display = "none";
+                return;
+            }
+
             const orderedItems = getOrderSummary();
             // console.log(orderedItems);
             const data = {
@@ -346,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result1 = await response1.text();
                 const result2 = await response2.text();
                 console.log(result1, result2);
-                console.log(result2);
+                // console.log(result2);
 
                 if (response1.ok) {
                     alert("Pesanan terkirim!\nTerimakasih....");
@@ -393,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (itemsContainer.classList.contains('list-view')) {
             itemsContainer.classList.remove('list-view');
             itemsContainer.classList.add('grid-view');
-            toggleViewBtn.innerHTML = '<i class="fas fa-list"></i> List View';
+            toggleViewBtn.innerHTML = '<i class="fas fa-list"></i> List ';
             details.forEach(detail => {
                 detail.style.display = 'none';
             });
@@ -402,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             itemsContainer.classList.remove('grid-view');
             itemsContainer.classList.add('list-view');
-            toggleViewBtn.innerHTML = '<i class="fas fa-th"></i> Grid View';
+            toggleViewBtn.innerHTML = '<i class="fas fa-th"></i> Grid ';
             details.forEach(detail => {
                 detail.style.display = 'block';
             });

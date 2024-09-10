@@ -23,9 +23,9 @@
 
     <main>
         <div class="view-options">
-            <button id="toggle-view-btn"><i class="fas fa-list"></i> List View</button>
+            <button id="toggle-view-btn"><i class="fas fa-list"></i> List </button>
             <select id="sort-options">
-                <option value="default">Urutan: Default</option>
+                <option value="default">Urutan: Semula</option>
                 <option value="name-asc">Nama (A-Z)</option>
                 <option value="name-desc">Nama (Z-A)</option>
                 <option value="price-asc">harga (rendah ke tinggi)</option>
@@ -47,10 +47,10 @@
             <!-- Checkout details will be dynamically inserted here -->
         </div>
         <form id="checkout-form" name="checkout-form">
-            <input type="text" name="namaCustomer" id="customer-name" placeholder="Customer Name" autocomplete="off" required >
+            <input type="text" name="namaCustomer" id="customer-name" placeholder="Nama pelanggan" autocomplete="off" required >
             <div id="suggestions" class="dropdown"></div>
-            <input type="tel" name="noTelp" id="customer-phone" placeholder="Phone Number" required >
-            <input type="text" name="alamat" id="customer-address" placeholder="address (optional)" >
+            <input type="tel" name="noTelp" id="customer-phone" placeholder="Nomor telepon" required >
+            <input type="text" name="alamat" id="customer-address" placeholder="Alamat ( jika diantar )" >
             <button id="checkout-btn" class="button" type="submit" disabled>
                 Checkout
             </button>
